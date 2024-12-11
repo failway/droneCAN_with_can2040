@@ -178,8 +178,31 @@ void setup() {
   motor.current_limit = 1;
   motor.voltage_limit = 11;
 
+  Serial.begin(115200);
+  motor.useMonitoring(Serial);
+
   motor.init();
   motor.initFOC();
+
+  float search_speed = 100;
+  motor.move(search_speed);
+
+  while (digitalRead(endstopPin) == HIGH) {
+    motor.loopFOC();
+    motor.move(search_speed);
+    delay(10);
+  }
+
+  motor.move(0);
+  sensor.update();
+  float initial_position = -sensor.getAngle();
+  angleMin = initial_position;
+  angleMax = angleMin - 21;
+  Serial.println(initial_position);
+  Serial.println("Initial position found.");
+
+  Serial.println("Motor ready.");
+  delay(100);
 
   Serial.println("Setup complete");
 }
